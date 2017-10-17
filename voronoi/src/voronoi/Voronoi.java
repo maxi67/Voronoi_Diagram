@@ -24,6 +24,7 @@ public class Voronoi extends JFrame implements ActionListener, ItemListener {
 
 	private JFileChooser fc; //開啟檔案
 	private File f; //檔案
+	private BufferedReader br;
 	
     JMenu Menu_main, Menu_action;
     JMenuBar JBar;
@@ -35,10 +36,10 @@ public class Voronoi extends JFrame implements ActionListener, ItemListener {
 	
 	ButtonGroup bg;
 	
-	int x, y, pointCount = 0;
+	int x, y, pointCount = 0, test;
 	int pointX[] = new int[1000];
 	int pointY[] = new int[1000];
-	boolean click_mode = true;
+	boolean click_mode = true, readReady = false;
 	
 	
 	//Constructor
@@ -92,7 +93,7 @@ public class Voronoi extends JFrame implements ActionListener, ItemListener {
 			            
 			            if(click_mode) {
 			            	g.setColor(Color.BLACK);
-				            g.fillOval(x, y,3, 3);
+				            g.fillOval(x, y,4, 4);
 				            pointX[pointCount] = x;
 				            pointY[pointCount] = y;
 				            pointCount++;
@@ -110,6 +111,10 @@ public class Voronoi extends JFrame implements ActionListener, ItemListener {
 			         }
 			      });
 	        
+
+	        panelDraw.addKeyListener(new prockey());
+	        panelDraw.setFocusable(true);
+	        
 	        add(panelMsg, BorderLayout.NORTH);
 	        add(panelDraw, BorderLayout.CENTER);
 	        
@@ -122,6 +127,32 @@ public class Voronoi extends JFrame implements ActionListener, ItemListener {
 			setVisible(true);
 	    	        
 	}
+	
+	/***實作按鍵處理方法***/
+    class prockey extends KeyAdapter
+    {
+        public void keyPressed(KeyEvent e)
+        {
+            if (e.getKeyCode() == 10 && readReady) //Enter
+            {
+            	try {
+            		
+            		panelDraw.repaint();
+            		
+            		//暫停0.25秒===========================
+//        			try
+//        			{
+//        				Thread.sleep(1000);
+//        			}catch(Exception e2){}
+        			
+					getData(br);
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+            }
+        }
+    }
 		
 	//建立功能選單
 	public JMenuBar getFunctionMenuBar() {
@@ -224,40 +255,43 @@ public class Voronoi extends JFrame implements ActionListener, ItemListener {
 			
 		FileReader fileReader = new FileReader(f);
 			
-		//建立BufferedReader 的串流
-		InputStreamReader in = new InputStreamReader(System.in);
-		BufferedReader br = new BufferedReader(fileReader);
-		BufferedReader input = new BufferedReader(in);
-				
+		br = new BufferedReader(fileReader);
+
+		readReady = true;
+		JLbl_msg.setText("Open finished. " + readReady);
+		panelDraw.requestFocus();
+		return;
+	}
+	
+	public void getData(BufferedReader br) throws IOException {
+		
+		test++;
+		readReady = false;
 		String strs[];
 		String line;
-			
-		while ((line = br.readLine()) != null) { //讀取資料
-			
+		line = br.readLine();
+		pointCount = Integer.parseInt(line);
 		
-			pointCount = Integer.parseInt(line);
-			if(pointCount == 0)
-				break;
-			
-			for(int i = 0; i < pointCount; i++) {
-				
-				
-				line = br.readLine();
-				System.out.println(line);
-				
-				strs = line.split(" "); //以逗號區隔，形成數個陣列資料
-				pointX[i] = Integer.parseInt(strs[0]);
-				pointY[i] = Integer.parseInt(strs[1]);
-				
-			}
-			
-			JLbl_msg.setText("There are "+ pointCount + " points now.");
-			input.readLine();  //Wait for user press Enter	
+		if(pointCount == 0) {
+			JLbl_msg.setText("EOF");
+			br.close();
+			return;
 		}
 		
-		br.close();
-
-		} // openFile()
+		Graphics g = panelDraw.getGraphics();
+		for(int i = 0; i < pointCount; i++) {
+			line = br.readLine();
+			strs = line.split(" "); //以逗號區隔，形成數個陣列資料
+			pointX[i] = Integer.parseInt(strs[0]);
+			pointY[i] = Integer.parseInt(strs[1]);
+			g.setColor(Color.BLACK);
+            g.fillOval(pointX[i], pointY[i], 4, 4);
+            JLbl_msg.setText(test+" ");
+		}
+		
+		readReady = true;
+	//	JLbl_msg.setText(test+" ");
+	}
 	
 	public void showPoints() {
 		JFrame Frame_points = new JFrame();
@@ -286,6 +320,7 @@ public class Voronoi extends JFrame implements ActionListener, ItemListener {
 		Frame_points.add(JSP_points);
 	}
 	
+	//reset
 	public void clean(){
 		repaint();
 		pointCount = 0;
@@ -294,6 +329,6 @@ public class Voronoi extends JFrame implements ActionListener, ItemListener {
 	
 	//主程式
 	public static void main(String argv[]){
-			Voronoi app = new Voronoi("Term Project");
-		}
+		Voronoi app = new Voronoi("Term Project");
+	}
 }
