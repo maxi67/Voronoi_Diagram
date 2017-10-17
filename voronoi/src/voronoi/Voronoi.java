@@ -94,6 +94,7 @@ public class Voronoi extends JFrame implements ActionListener, ItemListener {
 			            if(click_mode) {
 			            	g.setColor(Color.BLACK);
 				            g.fillOval(x, y,4, 4);
+				            g.drawString((x + "," + y), x, y);
 				            pointX[pointCount] = x;
 				            pointY[pointCount] = y;
 				            pointCount++;
@@ -127,33 +128,7 @@ public class Voronoi extends JFrame implements ActionListener, ItemListener {
 			setVisible(true);
 	    	        
 	}
-	
-	/***實作按鍵處理方法***/
-    class prockey extends KeyAdapter
-    {
-        public void keyPressed(KeyEvent e)
-        {
-            if (e.getKeyCode() == 10 && readReady) //Enter
-            {
-            	try {
-            		
-            		panelDraw.repaint();
-            		
-            		//暫停0.25秒===========================
-//        			try
-//        			{
-//        				Thread.sleep(1000);
-//        			}catch(Exception e2){}
-        			
-					getData(br);
-				} catch (IOException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}
-            }
-        }
-    }
-		
+			
 	//建立功能選單
 	public JMenuBar getFunctionMenuBar() {
 		
@@ -201,7 +176,24 @@ public class Voronoi extends JFrame implements ActionListener, ItemListener {
         return JBar;
 	}
 
-	//單選按鈕事件
+	//按鍵事件處理
+    class prockey extends KeyAdapter
+    {
+        public void keyPressed(KeyEvent e)
+        {
+            if (e.getKeyCode() == 10 && readReady) //Enter
+            {
+					try {
+						getData(br);
+					} catch (IOException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}		
+            }
+        }
+    }
+	
+	//單選按鈕事件處理
 	public void itemStateChanged(ItemEvent e) { 
 		
 		//Mode Select
@@ -265,32 +257,39 @@ public class Voronoi extends JFrame implements ActionListener, ItemListener {
 	
 	public void getData(BufferedReader br) throws IOException {
 		
-		test++;
+		//test++;
 		readReady = false;
 		String strs[];
-		String line;
-		line = br.readLine();
+		String line = br.readLine();
+		
+		while(line.length() == 0 || line.charAt(0) == '#') 
+			line = br.readLine();
+		
 		pointCount = Integer.parseInt(line);
+		Graphics g = panelDraw.getGraphics();
+		g.clearRect(0, 0, 1000, 1000);
 		
 		if(pointCount == 0) {
 			JLbl_msg.setText("EOF");
+			
 			br.close();
 			return;
 		}
 		
-		Graphics g = panelDraw.getGraphics();
 		for(int i = 0; i < pointCount; i++) {
+			
 			line = br.readLine();
+			while(line.length() == 0 || line.charAt(0) == '#') 
+				line = br.readLine();
+			
 			strs = line.split(" "); //以逗號區隔，形成數個陣列資料
 			pointX[i] = Integer.parseInt(strs[0]);
 			pointY[i] = Integer.parseInt(strs[1]);
 			g.setColor(Color.BLACK);
             g.fillOval(pointX[i], pointY[i], 4, 4);
-            JLbl_msg.setText(test+" ");
 		}
 		
 		readReady = true;
-	//	JLbl_msg.setText(test+" ");
 	}
 	
 	public void showPoints() {
