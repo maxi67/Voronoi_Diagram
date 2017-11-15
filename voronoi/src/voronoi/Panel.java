@@ -15,12 +15,10 @@ public class Panel extends JPanel {
 	
 	public int pointCount = 0;
 	public int lineCount = 0;
-//	public ArrayList<PDouble> point_list = new ArrayList<PDouble>();
 	public ArrayList<Point> point_list = new ArrayList<Point>();
 	public List<Line> line_list = new ArrayList<Line>();
 	
 	public Panel() {
-		
 	}
 	
 	public void paint(Graphics g) {

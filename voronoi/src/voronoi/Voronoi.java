@@ -38,6 +38,7 @@ public class Voronoi extends JFrame implements ActionListener, ItemListener {
 	private JFileChooser fc; //開啟檔案
 	private File f; //檔案
 	private BufferedReader br;
+	private BufferedWriter bw;
 	
     JMenu Menu_main, Menu_action;
     JMenuBar JBar;
@@ -54,6 +55,8 @@ public class Voronoi extends JFrame implements ActionListener, ItemListener {
 	private JPanel contentPane;
 	ButtonGroup bg;
 	
+	public final static int MAX = 900;
+	public final static int MIN = 0;
 	int pointCount = 0;
 	int point[][] = new int[500][2];
 	
@@ -180,7 +183,7 @@ public class Voronoi extends JFrame implements ActionListener, ItemListener {
         JLbl_points.setBounds(1000, 60, 100, 30);
         contentPane.add(JLbl_points);
         
-	
+        //功能按鈕們
         JLabel L_run = new JLabel(); 
         L_run.setText("執行");
         L_run.setFont(new Font("標楷體", Font.CENTER_BASELINE, 18));
@@ -210,18 +213,14 @@ public class Voronoi extends JFrame implements ActionListener, ItemListener {
         button_run.addMouseListener(new MouseAdapter() {
 	          @Override
 	          public void mouseClicked(MouseEvent e) {
+	        	  if(run) {
+	        		  return;
+	        	  }
 	        	  
 	        	  if(pointCount == 0) {
 	        		  JLbl_msg.setText("沒有點...");
 	        		  return;
 	        	  }
-	        	  
-	        	  if(run) {
-	        		  JFrame JF = new JFrame();
-	        		  JLbl_msg.setText("請按下清除後再操作");
-	        		  return;
-	        	  }
-	        	  
 	        	  draw();
 	          }
 	        });
@@ -236,9 +235,12 @@ public class Voronoi extends JFrame implements ActionListener, ItemListener {
 		        			if(status == JFileChooser.APPROVE_OPTION){		
 		        				//get selected file
 		        				f = fc.getSelectedFile();	
+		        				ReadFile(f);
 		        			}
-		        	  		
-							ReadFile(f);
+		        			else {
+		        				JLbl_msg.setText("檔案讀取失敗");
+		        			}
+		        	  									
 	        	  		}
 					} catch (IOException e1) {
 						// TODO Auto-generated catch block
@@ -250,15 +252,23 @@ public class Voronoi extends JFrame implements ActionListener, ItemListener {
 		button_output.addMouseListener(new MouseAdapter() {
 	          @Override
 	          public void mouseClicked(MouseEvent e) {
+	        	  try {
+	        		  if(run) {
+		        		  int status = fc.showOpenDialog(null);
+		        		  
+	        			  if(status == JFileChooser.APPROVE_OPTION){	
+	        				  f = fc.getSelectedFile();
+	        				  outputFile(f);
+	        			  }
+	        			  else {
+	        				  JLbl_msg.setText("檔案輸出失敗");
+	        			  }
+	        		  }
 	        	  
-	        	  if(run) {
-	        		  try {
-		        		  outputFile();
-		        	  } catch (IOException e1) {
+	        	  } catch (IOException e1) {
 						// TODO Auto-generated catch block
 						e1.printStackTrace();
 		        	  }
-	        	  }
 	        	  
 	          }
 	        });
@@ -450,20 +460,17 @@ public class Voronoi extends JFrame implements ActionListener, ItemListener {
 	//每按Enter讀一組資料
 	public void getData(BufferedReader br) throws IOException {
 		
+		
 		readReady = false;
 		String strs[];
 		String TwoP = br.readLine();
 		
-		while(TwoP.length() == 0 || TwoP.charAt(0) == '#') 
+		while(TwoP.length() == 0 || TwoP.charAt(0) == '#')  //跳過註解或換行符號
 			TwoP = br.readLine();
-		
-		//點數
-		pointCount = Integer.parseInt(TwoP);
+	
+		pointCount = Integer.parseInt(TwoP); //點數
 
-		//clean canvas
-		Graphics g = panelDraw.getGraphics();
-		g.setColor(Color.WHITE);
-		g.fillRect(100, 100, 1000, 1000);
+		panelDraw.clean(); //clean canvas
 		
 		//遇到0 -> EOF
 		if(pointCount == 0) {	
@@ -476,6 +483,7 @@ public class Voronoi extends JFrame implements ActionListener, ItemListener {
 
 		for(int i = 0; i < pointCount; i++) {
 			
+			run = false;
 			TwoP = br.readLine();
 			while(TwoP.length() == 0 || TwoP.charAt(0) == '#') 
 				TwoP = br.readLine();
@@ -485,27 +493,21 @@ public class Voronoi extends JFrame implements ActionListener, ItemListener {
 			p.x = Integer.parseInt(strs[0]);
 			p.y = Integer.parseInt(strs[1]);
 			
-		//	g.setColor(Color.BLACK);
-          //  g.fillOval(p.x, p.y, 4, 4);
-            
             updatePointMsg(p, p.x, p.y, i);
-            JLbl_msg.setText("按執行顯示圖形，或先按清除後再按Enter繼續");
+            
 		}
-		
-		
+		readReady = true;
+		JLbl_points.setText(pointCount + " points");
+        JLbl_msg.setText("按執行顯示圖形，然後可以輸出檔案或按Enter繼續");
 	}
 
-	private void outputFile() throws IOException{
-		File saveFile = null;
-		JFileChooser fileChooser = new JFileChooser();
-		int returnVal = fileChooser.showSaveDialog(this);
-	    if(returnVal == JFileChooser.APPROVE_OPTION){
-	    	saveFile = fileChooser.getSelectedFile();
-	    }
-	    BufferedWriter bw = new BufferedWriter(new FileWriter(saveFile.getAbsolutePath()));
+	//輸出檔案
+	private void outputFile(File f) throws IOException{
+		
+	    bw = new BufferedWriter(new FileWriter(f.getAbsolutePath()));
 		bw.write(totals.replace("\n", "\r\n"));
         bw.close();
-        JOptionPane.showMessageDialog(null,"檔案儲存成功","提示",JOptionPane.PLAIN_MESSAGE);
+        JOptionPane.showMessageDialog(null, "檔案已儲存","提示", JOptionPane.PLAIN_MESSAGE);
 	}
 	
 	//新增點
@@ -528,6 +530,9 @@ public class Voronoi extends JFrame implements ActionListener, ItemListener {
 	//新增線
 	public void updateLineMsg(Line l) {
 		
+		if(l.p_a.x == l.p_b.x && l.p_a.y == l.p_b.y)
+			return;
+		
 		panelDraw.addLine(l);
 		
 		lines = "";
@@ -539,11 +544,13 @@ public class Voronoi extends JFrame implements ActionListener, ItemListener {
 		totals = points + lines;
 		dataMsg.setText(totals);
 		run = true;
-	//	System.out.println("1 "+panelDraw.line_list.size());
 	}
 	
 	//新增線
 	public void updateLineMsg(double a_x, double a_y, double b_x, double b_y) {
+		
+		if(a_x == b_x && a_y == b_y)
+			return;
 		
 		Line l = new Line();
 		l.p_a.x = a_x;
@@ -559,10 +566,10 @@ public class Voronoi extends JFrame implements ActionListener, ItemListener {
 			lines = lines + "E " + (int)panelDraw.line_list.get(i).p_a.x + " " + (int)panelDraw.line_list.get(i).p_a.y + " "
         						 + (int)panelDraw.line_list.get(i).p_b.x + " " + (int)panelDraw.line_list.get(i).p_b.y + "\n";
         }
+		
 		totals = points + lines;
 		dataMsg.setText(totals);
 		run = true;
-	//	System.out.println("2 "+panelDraw.line_list.size());	
 	}
 
 	//reset
@@ -585,18 +592,22 @@ public class Voronoi extends JFrame implements ActionListener, ItemListener {
 		readReady = true;
 	}
 	
+	//畫線
 	public void draw() {
-		Graphics g = panelDraw.getGraphics();
 		String msg = "";
-		JLbl_msg.setText("可以輸出檔案，或按清除後繼續");
+		Line c;
 		
-	//	int c_count = panelDraw.point_list.size(); //畫布上看得到的點數
-		
+		if(click_mode)
+			JLbl_msg.setText("可以輸出檔案，或按清除後繼續");
+		else
+			JLbl_msg.setText("可以輸出檔案，或按Enter繼續");
+
 		switch(panelDraw.pointCount) {
 			case 1:
 				msg = "一個點無法構成Voronoi diagram";
 				if(panelDraw.pointCount < pointCount)
 					msg = msg + "(有重疊的點)";
+				
 				JLbl_msg.setText(msg);
 				return;
 		
@@ -609,11 +620,12 @@ public class Voronoi extends JFrame implements ActionListener, ItemListener {
 				pb.y = (double)panelDraw.point_list.get(1).y;
 				
 				TwoP L = new TwoP(pa, pb);
+				
 				if(L.isVertival()) //垂直線
-					updateLineMsg(L.midpointX(), 0, L.midpointX(), 1000);
+					updateLineMsg(L.midpointX(), 0, L.midpointX(), 900);
 				
 				else if(L.interceptX() == 0) //水平線
-					updateLineMsg(0, L.midpointY(), 1000, L.midpointY());
+					updateLineMsg(0, L.midpointY(), 900, L.midpointY());
 				
 				else {
 					Line l = new Line(); //垂直平分線
@@ -630,38 +642,67 @@ public class Voronoi extends JFrame implements ActionListener, ItemListener {
 					
 					l.p_b.x = L.midpointX() + vir2.x;
 					l.p_b.y = L.midpointY() + vir2.y;
+
+					c = l.toBoundX();
 					
-					Line c = toBoundX(l); //延長到畫布邊界
-						
 					updateLineMsg(c);
 				}
 				break;
 				
 			case 3:
-				PDouble p0 = new PDouble();
-				PDouble p1 = new PDouble();
-				PDouble p2 = new PDouble();
-				
-				p0.x = panelDraw.point_list.get(0).x;
-				p0.y = panelDraw.point_list.get(0).y;
-				p1.x = panelDraw.point_list.get(1).x;
-				p1.y = panelDraw.point_list.get(1).y;
-				p2.x = panelDraw.point_list.get(2).x;
-				p2.y = panelDraw.point_list.get(2).y;
-				
-				Line sortingLine[] = getLineList(p0, p1, p2);
+			
+				PDouble p[] = new PDouble[3];
 
+				for(int i = 0; i <= 2; i++) {
+					p[i] = new PDouble();
+					p[i].x = (double)(panelDraw.point_list.get(i).x);
+					p[i].y = (double)(panelDraw.point_list.get(i).y);
+				}
 				
-				Line mvline[] = new Line[3]; //三邊中垂線
-				Line c;
+				Line sortingLine[] = getLineList(p); //三邊從小到大
+
+				Line mline[] = new Line[3]; //三邊中垂線
+				
 	            for(int i = 0;i < 3;i++){
-	            	mvline[i] = mvLine(sortingLine[i].p_a, sortingLine[i].p_b);
+	            	mline[i] = sortingLine[i].mLine();
 	            }
-				if((p1.y - p0.y) * (p2.x - p0.x) == (p2.y - p0.y) * (p1.x - p0.x))
-					for(int i = 0;i < 2;i++) {
-						c = toBoundX(mvline[i]);
+	            
+	            //共線情況
+				if((p[1].y - p[0].y) * (p[2].x - p[0].x) == (p[2].y - p[0].y) * (p[1].x - p[0].x)) {
+					for(int i = 0; i < 2; i++) {
+						c = mline[i].toBoundX();
 						updateLineMsg(c);
 					}
+				}
+				
+				//三角形
+				else {
+					
+					PDouble circumcentre = getCircumcentre(p); //外心
+					int type = getTriangleType(sortingLine); //三角形  0:銳角 1:鈍角 2:直角
+					PDouble verticalPoint = null; //直角坐標
+					
+	            	if(type == 2){ //直角三角形	
+	            		for(int i = 0;i < 3;i++){
+	                        
+	            			if(p[i] != sortingLine[2].p_a && p[i] != sortingLine[2].p_b)
+	                        	verticalPoint = p[i]; //直角坐標
+	                        
+	                    }
+	            	}
+	            	
+	            	for(int i = 0; i < 3; i++){
+            			if(i == 2) { //外心, 中垂線, 直角坐標, 三角形型態
+            				if(type == 1 && (circumcentre.x < 0 ||circumcentre.x > MAX) )
+            					continue;
+            				c = getTriLine(circumcentre, mline[i], verticalPoint, type);	
+            			}
+            			else
+            				c = getTriLine(circumcentre, mline[i], verticalPoint, 0);
+            			
+            			updateLineMsg(c);
+            		}
+				}
 		
 				break;
 				
@@ -670,20 +711,126 @@ public class Voronoi extends JFrame implements ActionListener, ItemListener {
 				break;
 		}
 		button_output.setEnabled(true);
+		
 	}
 	
-	private Line[] getLineList(PDouble pa, PDouble pb, PDouble pc){ 		//	把三角形的邊從大到小排好  回傳為從小到大
-        Line sortingLine[] = new Line[3];
+	//畫三角形邊
+	private Line getTriLine(PDouble circumcentre, Line mline, PDouble verticalPoint, int type){
+		
+		
+    	PDouble start = new PDouble();
+        PDouble destination = new PDouble();
+        PDouble newDest = new PDouble();
+        Line tempLine;
+        int maxX = MAX;
+        int minX = MIN;
+        int maxY = MAX;
+        int minY = MIN;
         
+        if(type == 1){ //鈍角三角形
+            start.x = (mline.p_a).x;
+            start.y = (mline.p_a).y;
+            destination.x = circumcentre.x;
+            destination.y = circumcentre.y;
+    	}
+        
+    	else if(type == 2){ //直角三角形
+    		start.x = (mline.p_a).x;
+            start.y = (mline.p_a).y;
+    	}
+        
+    	else{ //銳角三角形
+    		start.x = circumcentre.x;
+            start.y = circumcentre.y;
+            destination.x = (mline.p_a).x;
+            destination.y = (mline.p_a).y;
+    	}
+        
+        if(type != 2){ //鈍角 銳角
+        	if(start.x  == destination.x){ //中垂線垂直
+        		
+            	PDouble p_a, p_b;
+            	if(start.y > destination.y){
+            		p_a = new PDouble(start.x, (double)0);
+            		if(type == 1) {
+            			tempLine = new Line(destination, p_a);
+            			tempLine = tempLine.toBoundX();
+            		}
+            		else
+            			tempLine = new Line(start, p_a);
+            		
+            	}
+            	else{
+            		
+            		p_b = new PDouble(start.x, MAX);
+            		if(type == 1)
+            			tempLine = new Line(destination, p_b);
+            		else
+            			tempLine = new Line(start, p_b);
+            	}
+            }
+        	
+            else{
+            	
+            	if(start.x > destination.x){
+            		double m = (double) (start.y - destination.y) / (start.x - destination.x);
+            		minY = (int) (m * (minX - start.x) + start.y);
+            		newDest.x = minX;
+            		newDest.y = minY;
+            	}
+            	else{	
+            		double m = (double) (start.y - destination.y) / (start.x - destination.x);
+            		maxY =  (int) (m * (maxX - start.x) + start.y);
+            		newDest.x = maxX;
+            		newDest.y = maxY;
+            	}
+            	if(type == 1) {
+            		tempLine = new Line(destination, newDest); 
+            	}
+            	else 
+            		tempLine = new Line(start, newDest); 
+            	
+            	tempLine = tempLine.toBoundY(tempLine);
+            }
+        	
+        	tempLine.change();
+            return tempLine;
+        }
+        
+        else{ //直角三角形
+        	
+        	tempLine = mline.toBoundX();
+        	if( (start.x > verticalPoint.x && start.y < verticalPoint.y) || (start.x > verticalPoint.x && start.y > verticalPoint.y)){
+                if((tempLine.p_a).x > (tempLine.p_b).x) 
+                	tempLine.p_b= start;
+                else 
+                	tempLine.p_a = start;
+            } 
+        	
+        	else{
+                if((tempLine.p_a).x > (tempLine.p_b).x)
+                	tempLine.p_a = start;
+                else 
+                	tempLine.p_b = start;            
+            }
+        	return tempLine;
+        }
+    }
+	
+	 //三角形的邊從小到大
+	private Line[] getLineList(PDouble[] p){
+        Line line[] = new Line[3];
+        
+        //生成三邊
         ArrayList<Line> lineList = new ArrayList<>();
-        lineList.add(new Line(pa, pb));
-        lineList.add(new Line(pb, pc));
-        lineList.add(new Line(pc, pa));
+        lineList.add(new Line(p[0], p[1]));
+        lineList.add(new Line(p[1], p[2]));
+        lineList.add(new Line(p[0], p[2]));
         
         for(int i = 0;i < lineList.size(); i++){		
         	Line max = new Line();
         	
-	        for(int j = i;j < lineList.size();j++){
+	        for(int j = i;j < lineList.size(); j++){
 	        	if(max.getLength() < lineList.get(j).getLength()){
 	        		max = lineList.get(j);
 	        	}
@@ -692,98 +839,42 @@ public class Voronoi extends JFrame implements ActionListener, ItemListener {
 	        lineList.add(i, max);
         }
         
-        sortingLine[0] = lineList.get(2);
-        sortingLine[1] = lineList.get(1);
-        sortingLine[2] = lineList.get(0);
+        line[0] = lineList.get(2);
+        line[1] = lineList.get(1);
+        line[2] = lineList.get(0);
 
-        return sortingLine;
-    }
-	
-	// 找中垂線
-	private Line mvLine(PDouble a,PDouble b) { 
-        PDouble c = new PDouble();
-        PDouble v = new PDouble();
-        double temp;
-        c.x =  (a.x + b.x) / 2 ;
-        c.y =  (a.y + b.y) / 2 ;
-        v.x =  b.x - a.x;
-        v.y = b.y -a.y;
-        
-        temp = v.x;
-        v.x = v.y;
-        v.y = temp;
-        
-        v.x *= -1;
-        v.x += c.x;
-        v.y += c.y;
-        return new Line(c,v);
-    }
-	
-	private Line toBoundX(Line line) {
-		int maxX = 900;
-        int maxY = 900;
-        int minX = 0;
-        int minY = 0;
-        Line tempL;
-        
-        if((line.p_a).x  - (line.p_b).x == 0){	// 中垂線為垂直線的狀況
-            PDouble down = new PDouble( (line.p_a).x , (double)maxY); 
-            PDouble top = new PDouble( (line.p_a).x , (double)minY); 
-            tempL = new Line(top, down); 
-            return tempL;
-        }
-        
-        else {
-        	double m = ((line.p_a).y - (line.p_b).y) / ((line.p_a).x - (line.p_b).x);
-        	// Y = m * (X - x) + y
-            maxY = (int) (m * (maxX - (line.p_a).x) + (line.p_a).y);
-            minY = (int) (m * (minX - (line.p_a).x) + (line.p_a).y);
-
-            PDouble left = new PDouble();
-            left.x = (double)minX; left.y = (double)minY;
-            
-            PDouble right = new PDouble();
-            right.x = (double)maxX; right.y = (double)maxY;
-            
-            tempL = new Line(left, right); 
-            tempL = toBoundY(tempL);
-            return tempL;
-        }
-	}	
-	
-	private Line toBoundY(Line line){
-		int maxY = 900;
-		int minY = 0;
-        
-        double m =  ((line.p_a).y - (line.p_b).y) / ((line.p_a).x - (line.p_b).x) ;	
-        
-        int X;
-        if(line.p_a.y < 0 ){	 // X = (Y - y) / m + x 
-            X = (int) (((minY - (line.p_a).y)) / m + (line.p_a).x);     
-            line.p_a.x = X;
-            line.p_a.y = minY;
-        }   
-        
-        if(line.p_a.y > 900){	
-            X = (int) (((maxY - (line.p_a).y)) / m + (line.p_a).x);     
-            line.p_a.x = X;
-            line.p_a.y = maxY;
-        }
-        
-        if(line.p_b.y < 0 ){	
-            X = (int) (((minY - (line.p_b).y)) / m + (line.p_b).x);    
-            line.p_b.x = X;
-            line.p_b.y = minY;
-        }   
-        
-        if(line.p_b.y > 900){	
-            X = (int) (((maxY - (line.p_b).y)) / m + (line.p_b).x);     
-            line.p_b.x = X;
-            line.p_b.y = maxY;
-        }
         return line;
+    }
+	
+	//三角形型態  0:銳角 1:鈍角 2:直角 (D = a^2 + b^2 - c^2)
+	private int getTriangleType(Line line[]){ 
+	
+		//鈍角
+		if(Math.pow(line[0].getLength(), 2) + Math.pow(line[1].getLength(), 2) - Math.pow(line[2].getLength(), 2) < 0)
+			return 1;
+		
+		//直角
+		else if(Math.pow(line[0].getLength(), 2) + Math.pow(line[1].getLength(), 2) - Math.pow(line[2].getLength(), 2) == 0)
+			return 2;
+		
+		//銳角
+		else
+			return 0;
 	}
-
+	
+	//三角形外心
+	private PDouble getCircumcentre(PDouble[] p){
+    	PDouble res = new PDouble();
+    	res.x = ((p[1].y - p[0].y) * (p[2].y * p[2].y - p[0].y * p[0].y + p[2].x * p[2].x - p[0].x * p[0].x) - (p[2].y - p[0].y)
+                * (p[1].y * p[1].y - p[0].y * p[0].y + p[1].x * p[1].x - p[0].x * p[0].x))
+                / (2 * (p[2].x - p[0].x) * (p[1].y - p[0].y) - 2 * ((p[1].x - p[0].x) * (p[2].y - p[0].y)));
+    	
+    	res.y = ((p[1].x - p[0].x) * (p[2].x * p[2].x - p[0].x * p[0].x + p[2].y * p[2].y - p[0].y * p[0].y) - (p[2].x - p[0].x)
+    	        * (p[1].x * p[1].x - p[0].x * p[0].x + p[1].y * p[1].y - p[0].y * p[0].y))
+    	        / (2 * (p[2].y - p[0].y) * (p[1].x - p[0].x) - 2 * ((p[1].y - p[0].y) * (p[2].x - p[0].x)));    	
+    	return res;
+    }
+	
 	//主程式
 	public static void main(String argv[]){
 		Voronoi app = new Voronoi("Term Project");

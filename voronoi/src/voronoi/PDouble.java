@@ -14,7 +14,4 @@ public class PDouble {
 		x = 0.0;
 		y = 0.0;
 	}
-	
-	
-	
 }
