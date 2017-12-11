@@ -39,7 +39,7 @@ public class ConvexHull {
 			return H;
 		} else if (P.length <= 1) {
 			return P;
-		} else{
+		} else {
 			return null;
 		}
 	}

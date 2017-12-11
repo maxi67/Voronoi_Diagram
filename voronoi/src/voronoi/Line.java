@@ -22,7 +22,7 @@ public class Line {
 		int minY = 0;
 		
 		Line tempL;
-        if(p_a.x  - p_b.x == 0){	// 垂直線	
+        if (p_a.x  - p_b.x == 0){	// 垂直線	
             PDouble a = new PDouble( (p_a).x , (double)maxY); 
             PDouble b = new PDouble( (p_a).x , (double)minY); 
             tempL = new Line(a, b); 
@@ -57,25 +57,25 @@ public class Line {
         double m =  ((line.p_a).y - (line.p_b).y) / ((line.p_a).x - (line.p_b).x) ;	
         
         int X;
-        if(line.p_a.y < minY ){	 // X = (Y - y) / m + x 
+        if (line.p_a.y < minY ){	 // X = (Y - y) / m + x 
             X = (int) (((minY - (line.p_a).y)) / m + (line.p_a).x);     
             line.p_a.x = X;
             line.p_a.y = minY;
         }   
         
-        if(line.p_a.y > maxY){	
+        if (line.p_a.y > maxY){	
             X = (int) (((maxY - (line.p_a).y)) / m + (line.p_a).x);     
             line.p_a.x = X;
             line.p_a.y = maxY;
         }
         
-        if(line.p_b.y < minY ){	
+        if (line.p_b.y < minY ){	
             X = (int) (((minY - (line.p_b).y)) / m + (line.p_b).x);    
             line.p_b.x = X;
             line.p_b.y = minY;
         }   
         
-        if(line.p_b.y > maxY){	
+        if (line.p_b.y > maxY){	
             X = (int) (((maxY - (line.p_b).y)) / m + (line.p_b).x);     
             line.p_b.x = X;
             line.p_b.y = maxY;
@@ -86,43 +86,43 @@ public class Line {
 	//超過邊界值的拉回來
 	public void change() { 
 		double m = ((p_a).y - (p_b).y) / ((p_a).x - (p_b).x);
-		if(p_a.x < 0) {
+		if (p_a.x < 0) {
 			p_a.y = p_b.y - p_b.x * m;
 			p_a.x = 0;
 		}
 		
-		if(p_a.x > 900) {
+		if (p_a.x > 900) {
 			p_a.y = p_b.y + (900-p_b.x) * m;
 			p_a.x = 900;
 		}
 		
-		if(p_b.x < 0) {
+		if (p_b.x < 0) {
 			p_b.y = p_a.y - p_a.x * m;
 			p_b.x = 0;
 		}
 		
-		if(p_b.x > 900) {
+		if (p_b.x > 900) {
 			p_b.y = p_a.y + (900-p_a.x) * m;
 			p_b.x = 900;
 		}
 		
 		
-		if(p_a.y < 0) {
+		if (p_a.y < 0) {
 			p_a.x = p_b.x - p_b.y / m;
 			p_a.y = 0;
 		}
 		
-		if(p_a.y > 900) {
+		if (p_a.y > 900) {
 			p_a.x = (900 - p_b.y)/m + p_b.x;
 			p_a.y = 900;
 		}
 		
-		if(p_b.y < 0) {
+		if (p_b.y < 0) {
 			p_b.x = p_a.x - p_a.y / m;
 			p_b.y = 0;
 		}
 		
-		if(p_b.y > 900) {
+		if (p_b.y > 900) {
 			p_b.x = (900 - p_a.y)/m + p_a.x;
 			p_b.y = 900;
 		}
