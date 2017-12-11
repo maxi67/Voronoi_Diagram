@@ -1,13 +1,10 @@
-
 /*******************************************************/
 /* $LAN=JAVA$                                          */
 /* Term Project - Voronoi Diagram Algorithm            */
-/* Author:                                             */
-/* Student ID:                                         */
-/* Version: 2017/10/16                                 */
+/* Author: 陳冠智	                                   */
+/* Student ID: M063040005                              */
+/* Version: 2017/11/15                                 */
 /*******************************************************/
-
-
 package voronoi;
 
 import java.awt.*;
@@ -46,7 +43,7 @@ public class Voronoi extends JFrame implements ActionListener, ItemListener {
     JMenuItem JMItem_open, JMItem_output, JMItem_clean, JMItem_exit, JMItem_STS, JMItem_run, JMItem_test;
 	JRadioButton[] JRB;
 	JLabel JLbl_msg, JLbl_points;
-	JLabel button_run, button_open, button_output, button_clean, button_exit; //Button
+	JLabel button_step, button_run, button_open, button_output, button_clean, button_exit; //Button
 	JPanel panelMsg;
 	Panel panelDraw;
 	JScrollPane JSP_points;
@@ -58,89 +55,88 @@ public class Voronoi extends JFrame implements ActionListener, ItemListener {
 	public final static int MAX = 900;
 	public final static int MIN = 0;
 	int pointCount = 0;
+	int step = 0;
 	int point[][] = new int[500][2];
 	
 	ArrayList<Point> point_list = new ArrayList<Point>();
 	
-	boolean click_mode = true, readReady = false, run = false;
+	boolean click_mode = true, readReady = false, run = false, isStep = false;
 	String points = "", lines = "", totals = "";
 	
 	//建構子
 	public Voronoi(String title) {
+		fc = new JFileChooser("./");
 		
-			fc = new JFileChooser("./");
-			
-			//建立功能選單
-	        setJMenuBar(getFunctionMenuBar());
-	        
-	        contentPane = new JPanel();
-			contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
-			setContentPane(contentPane);
-			contentPane.setLayout(null);
-	
-	        //Panel_Msg--------------------------------------
-	        initMsgPanel();
+		//建立功能選單
+        setJMenuBar(getFunctionMenuBar());
+        
+        contentPane = new JPanel();
+		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
+		setContentPane(contentPane);
+		contentPane.setLayout(null);
 
-	        //Data Msg(點邊資料)----------------------------------
-	        JScrollPane databoard = new JScrollPane();
-	        databoard.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
-	        dataMsg = new JTextArea();
-	        dataMsg.setFont(new Font("",Font.BOLD, 16));
-	        databoard.setViewportView(dataMsg);
-	        
-	        databoard.setBounds(0, 100, 300, 900);
-	        contentPane.add(databoard);
-	        
-	        //Panel_Draw--------------------------------------
-	        panelDraw = new Panel();
-	        panelDraw.setBounds(300,100,900,900);
-	        panelDraw.setBackground(Color.WHITE);
-	        
-	        panelDraw.addMouseListener(new MouseAdapter(){
-		         public void mousePressed(MouseEvent e){  //實做滑鼠的點擊事件
-		        	 
-		        	 	if(click_mode) {
+        //Panel_Msg--------------------------------------
+        initMsgPanel();
 
-		        	 		if(run) {
-				        		  JFrame JF = new JFrame();
-				        		  JOptionPane.showMessageDialog(JF, "請按下清除後再重新操作。",
-			                              "錯誤", JOptionPane.ERROR_MESSAGE);
-				        		  return;
-				        	  }
-			            	
-			            	Graphics g = panelDraw.getGraphics();
-			            	Point p = e.getPoint();
-			            	pointCount++;      
-			                 
-			            	updatePointMsg(p, p.x, p.y, panelDraw.pointCount);
+        //Data Msg(點邊資料)----------------------------------
+        JScrollPane databoard = new JScrollPane();
+        databoard.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+        dataMsg = new JTextArea();
+        dataMsg.setFont(new Font("",Font.BOLD, 16));
+        databoard.setViewportView(dataMsg);
+        
+        databoard.setBounds(0, 100, 300, 900);
+        contentPane.add(databoard);
+        
+        //Panel_Draw--------------------------------------
+        panelDraw = new Panel();
+        panelDraw.setBounds(300,100,900,900);
+        panelDraw.setBackground(Color.WHITE);
+        
+        panelDraw.addMouseListener(new MouseAdapter(){
+	         public void mousePressed(MouseEvent e){  //實做滑鼠的點擊事件
+	        	 
+	        	 	if(click_mode) {
 
-				            if(panelDraw.pointCount == 1)
-				            	JLbl_points.setText(pointCount + " point");
-				            else
-				            	JLbl_points.setText(pointCount + " points");
-			            }
-			            else {
-			            	JFrame JF = new JFrame();
-			            	JOptionPane.showMessageDialog(JF,"在檔案匯入模式下，滑鼠不可點擊畫布",
-	                                  "錯誤", JOptionPane.ERROR_MESSAGE);
-			            }
-		        	 
-			         }
-			      });
-	        
-	        panelDraw.addKeyListener(new prockey());
-	        panelDraw.setFocusable(true);
-	        
-	        
-	        contentPane.add(panelDraw);
-     
-	        //Frame(Window) Settings
-	        setTitle("Term Project");
-			setLocation(200, 200);
-			setSize(1200, 1100);
-			setLocationRelativeTo(null);
-			setResizable(false);
-			setVisible(true);    	        
+	        	 		if(run) {
+			        		  JFrame JF = new JFrame();
+			        		  JOptionPane.showMessageDialog(JF, "請按下清除後再重新操作。",
+		                              "錯誤", JOptionPane.ERROR_MESSAGE);
+			        		  return;
+			        	  }
+		            	
+		            	Graphics g = panelDraw.getGraphics();
+		            	Point p = e.getPoint();
+		            	pointCount++;      
+		                 
+		            	updatePointMsg(p, p.x, p.y, panelDraw.pointCount);
+
+			            if(panelDraw.pointCount == 1)
+			            	JLbl_points.setText(pointCount + " point");
+			            else
+			            	JLbl_points.setText(pointCount + " points");
+		            }
+		            else {
+		            	JFrame JF = new JFrame();
+		            	JOptionPane.showMessageDialog(JF,"在檔案匯入模式下，滑鼠不可點擊畫布",
+                                  "錯誤", JOptionPane.ERROR_MESSAGE);
+		            }
+	        	 
+		         }
+		      });
+        
+        panelDraw.addKeyListener(new prockey());
+        panelDraw.setFocusable(true);
+        
+        contentPane.add(panelDraw);
+ 
+        //Frame(Window) Settings
+        setTitle("Term Project");
+		setLocation(200, 200);
+		setSize(1200, 1100);
+		setLocationRelativeTo(null);
+		setResizable(false);
+		setVisible(true);
 	}
 	
 	//Panel_Msg 初始化
@@ -151,9 +147,9 @@ public class Voronoi extends JFrame implements ActionListener, ItemListener {
         //訊息JLabel---------------------------------------
         JLbl_msg = new JLabel();
         JLbl_msg.setText("可以在畫布上任意點擊，或改以檔案匯入");
-        JLbl_msg.setFont(new Font("標楷體", Font.CENTER_BASELINE, 20));
+        JLbl_msg.setFont(new Font("標楷體", Font.CENTER_BASELINE, 18));
         
-        JLbl_msg.setBounds(400, 10, 700, 30);
+        JLbl_msg.setBounds(400, 25, 700, 25);
         contentPane.add(JLbl_msg);
         
         //模式單選紐(滑鼠、讀檔)-----------------------------------
@@ -185,8 +181,12 @@ public class Voronoi extends JFrame implements ActionListener, ItemListener {
         
         //功能按鈕們
         JLabel L_run = new JLabel(); 
-        L_run.setText("執行");
+        L_run.setText("Run");
         L_run.setFont(new Font("標楷體", Font.CENTER_BASELINE, 18));
+        
+        JLabel L_step = new JLabel(); 
+        L_step.setText("Step by step");
+        L_step.setFont(new Font("標楷體", Font.CENTER_BASELINE, 18));
         
         JLabel L_open = new JLabel(); 
         L_open.setText("匯入");
@@ -204,27 +204,31 @@ public class Voronoi extends JFrame implements ActionListener, ItemListener {
         L_exit.setText("離開");
         L_exit.setFont(new Font("標楷體", Font.CENTER_BASELINE, 18));
         
+        button_step = new JLabel(new ImageIcon("./img/step.png"), SwingConstants.LEFT);
         button_run = new JLabel(new ImageIcon("./img/run.png"), SwingConstants.LEFT);
         button_open = new JLabel(new ImageIcon("./img/folder.png"), SwingConstants.LEFT);
         button_output = new JLabel(new ImageIcon("./img/output.png"), SwingConstants.LEFT);
         button_clean = new JLabel(new ImageIcon("./img/clean.png"), SwingConstants.LEFT);
         button_exit = new JLabel(new ImageIcon("./img/exit.png"), SwingConstants.LEFT);
         
-        button_run.addMouseListener(new MouseAdapter() {
+        //step by step
+        button_step.addMouseListener(new MouseAdapter() {
 	          @Override
 	          public void mouseClicked(MouseEvent e) {
-	        	  if(run) {
-	        		  return;
-	        	  }
-	        	  
-	        	  if(pointCount == 0) {
-	        		  JLbl_msg.setText("沒有點...");
-	        		  return;
-	        	  }
-	        	  draw();
+	        	  isStep = true;
+	        	  runDraw();
 	          }
 	        });
         
+        //run
+        button_run.addMouseListener(new MouseAdapter() {
+	          @Override
+	          public void mouseClicked(MouseEvent e) {
+	        	  runDraw();
+	          }
+	        });
+        
+        //open
 		button_open.addMouseListener(new MouseAdapter() {
 	          @Override
 	          public void mouseClicked(MouseEvent e) {
@@ -249,6 +253,7 @@ public class Voronoi extends JFrame implements ActionListener, ItemListener {
 	          }
 	        });
         
+		//output
 		button_output.addMouseListener(new MouseAdapter() {
 	          @Override
 	          public void mouseClicked(MouseEvent e) {
@@ -268,11 +273,12 @@ public class Voronoi extends JFrame implements ActionListener, ItemListener {
 	        	  } catch (IOException e1) {
 						// TODO Auto-generated catch block
 						e1.printStackTrace();
-		        	  }
+		        	}
 	        	  
 	          }
 	        });
 		
+		//clean
         button_clean.addMouseListener(new MouseAdapter() {
           @Override
           public void mouseClicked(MouseEvent e) {
@@ -280,6 +286,7 @@ public class Voronoi extends JFrame implements ActionListener, ItemListener {
           }
         });
         
+        //exit
         button_exit.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
@@ -288,8 +295,11 @@ public class Voronoi extends JFrame implements ActionListener, ItemListener {
             }
           });
 
-        button_run.setBounds(40, 25, 100, 20);
-        L_run.setBounds(80, 25, 40, 20);
+        button_step.setBounds(40, 25, 150, 20);
+        L_step.setBounds(80, 25, 150, 25);
+        
+        button_run.setBounds(240, 25, 100, 20);
+        L_run.setBounds(280, 25, 40, 25);
         
         button_open.setBounds(40, 50, 100, 50);
         button_open.setEnabled(false);
@@ -305,6 +315,8 @@ public class Voronoi extends JFrame implements ActionListener, ItemListener {
         button_exit.setBounds(340, 50, 100, 50);
         L_exit.setBounds(380, 50, 40, 50);
         
+        contentPane.add(button_step);
+        contentPane.add(L_step);
         contentPane.add(button_run);
         contentPane.add(L_run);
         contentPane.add(button_open);
@@ -336,7 +348,7 @@ public class Voronoi extends JFrame implements ActionListener, ItemListener {
         JMItem_output = new JMenuItem("輸出文字檔", new ImageIcon("./img/output.png"));
         JMItem_clean = new JMenuItem("清空畫布", new ImageIcon("./img/clean.png"));
         JMItem_exit = new JMenuItem("離開程式", new ImageIcon("./img/exit.png"));
-        
+            
         JMItem_open.setEnabled(false);
         
         JMItem_open.addActionListener(this);
@@ -351,16 +363,13 @@ public class Voronoi extends JFrame implements ActionListener, ItemListener {
         
         //Menu_action =========
         JMItem_STS = new JMenuItem("Step by Step");
-        JMItem_run = new JMenuItem("Run");
-        JMItem_test = new JMenuItem("Test");
+        JMItem_run= new JMenuItem("執行", new ImageIcon("./img/run.png"));
         
         JMItem_STS.addActionListener(this);
         JMItem_run.addActionListener(this);
-        JMItem_test.addActionListener(this);
         
         Menu_action.add(JMItem_STS);
         Menu_action.add(JMItem_run);
-        Menu_action.add(JMItem_test);
         
         JBar.add(Menu_main);
         JBar.add(Menu_action);
@@ -371,13 +380,11 @@ public class Voronoi extends JFrame implements ActionListener, ItemListener {
 	//按鍵事件處理
     class prockey extends KeyAdapter
     {
-        public void keyPressed(KeyEvent e)
-        {
-            if (e.getKeyCode() == 10 && readReady) //Enter
-            {
+        public void keyPressed(KeyEvent e){
+            if (e.getKeyCode() == 10 && readReady) { //Enter
 					try {
 						
-						for(int i = point.length - pointCount; i < point.length; i++){
+						for (int i = point.length - pointCount; i < point.length; i++){
 							point[i][0]=0;
 							point[i][1]=0;
 						}
@@ -427,7 +434,27 @@ public class Voronoi extends JFrame implements ActionListener, ItemListener {
 	    		ReadFile(f);
 			}
 			
-			else if(e.getSource() == JMItem_clean){ //Clean
+			else if (e.getSource() == JMItem_output){ //Output
+				try {
+	        		  if(run) {
+		        		  int status = fc.showOpenDialog(null);
+		        		  
+	        			  if (status == JFileChooser.APPROVE_OPTION){	
+	        				  f = fc.getSelectedFile();
+	        				  outputFile(f);
+	        			  }
+	        			  else {
+	        				  JLbl_msg.setText("檔案輸出失敗");
+	        			  }
+	        		  }
+	        	  
+	        	  } catch (IOException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+		        	}
+			}
+			
+			else if (e.getSource() == JMItem_clean){ //Clean
 				clean();
 			}
 			
@@ -436,15 +463,87 @@ public class Voronoi extends JFrame implements ActionListener, ItemListener {
 				System.exit(0);	//結束程式
 			}
 			
-			else if(e.getSource() == JMItem_test){ 
-			//	showPoints();
+			else if(e.getSource() == JMItem_run){ //Run
+				
+
+	        	  runDraw();
 			}
-			
+
 		}catch(IOException ex) {
 			System.out.println(ex);
 		}
 	}
 	
+	public void runDraw() {
+		
+		JLbl_msg.setText(""+isStep);
+		
+		if (pointCount == 0) {
+	  		  JLbl_msg.setText("沒有點...");
+	  		  return;
+	  	}
+
+		int count = panelDraw.point_list.size();
+		ArrayList<Point> list = panelDraw.point_list;
+		
+		ArrayList<Point> p = new ArrayList<>();
+		ArrayList<Point> p2 = new ArrayList<>();
+		
+		if (count <= 3)		
+			draw(list);
+		
+		else { //devide 2 parts
+			
+			for (int i = 0; i < count/2; i++) {
+			//	System.out.println("p " + i);
+				p.add(list.get(i));
+			}
+			
+			for (int i = (count/2); i < count; i++)
+				p2.add(list.get(i));
+
+			Point[] c_p = new Point[list.size()];
+			for (int i = 0; i < list.size(); i++)
+				c_p[i] = list.get(i);
+			
+			if (!isStep) {
+				if(run) //防止二次執行
+					return;  	 	
+				draw(p);
+				draw(p2);
+				panelDraw.drawConvex(ConvexHull.convex_hull(c_p), 3);
+			}
+			
+			else {
+				step++;
+				switch(step) {
+					case 1:
+						draw(p);
+						JLbl_msg.setText("Group 1");
+						break;
+					case 2:
+						draw(p2);
+						JLbl_msg.setText("Group 2");
+						break;
+					case 3:
+						panelDraw.drawConvex(p, 1);
+						JLbl_msg.setText("Group 1 Convex Hull");
+						break;
+					case 4:
+						panelDraw.drawConvex(p2, 2);
+						JLbl_msg.setText("Group 2 Convex Hull");
+						break;
+					case 5:
+						panelDraw.drawConvex(ConvexHull.convex_hull(c_p), 3);
+						JLbl_msg.setText("Group 2 Convex Hull");
+						break;
+					default:
+						break;
+				}
+			}
+		}
+	}
+
 	//讀檔
 	public void ReadFile(File f) throws IOException{
 			
@@ -457,18 +556,61 @@ public class Voronoi extends JFrame implements ActionListener, ItemListener {
 		return;
 	}
 	
+	//讀輸出檔案
+	public void showPic(String line) throws IOException {
+		
+		clean();
+		Graphics g = (Graphics2D)panelDraw.getGraphics();
+		String strs[] = line.split(" ");
+		
+		Point p = new Point(Integer.valueOf(strs[1]), Integer.valueOf(strs[2]));
+		pointCount++;
+		
+		//count++;
+		updatePointMsg(p, Integer.valueOf(strs[1]), Integer.valueOf(strs[2]), pointCount);
+		
+		while((line = br.readLine()) != null){
+			
+			String strs2[] = line.split(" ");
+			
+			if (strs2[0].charAt(0) == 'P') {
+				pointCount++;
+				p.x = Integer.valueOf(strs2[1]);
+				p.y = Integer.valueOf(strs2[2]);
+				updatePointMsg(p, Integer.valueOf(strs2[1]), Integer.valueOf(strs2[2]), pointCount);
+			}
+			
+			else if (strs2[0].charAt(0) == 'E') {
+				Line l = new Line();
+				l.p_a.x = (double)Integer.valueOf(strs2[1]);
+				l.p_a.y = (double)Integer.valueOf(strs2[2]);
+				l.p_b.x = (double)Integer.valueOf(strs2[3]);
+				l.p_b.y = (double)Integer.valueOf(strs2[4]);
+				updateLineMsg(l);
+			}
+				
+		}
+		readReady = false;
+
+	}
+	
 	//每按Enter讀一組資料
 	public void getData(BufferedReader br) throws IOException {
 		
-		
 		readReady = false;
 		String strs[];
-		String TwoP = br.readLine();
+		String line = br.readLine();
 		
-		while(TwoP.length() == 0 || TwoP.charAt(0) == '#')  //跳過註解或換行符號
-			TwoP = br.readLine();
+		//讀輸出檔案
+		if(line.charAt(0) == 'P') {
+			showPic(line);
+			return;
+		}
+			
+		while(line.length() == 0 || line.charAt(0) == '#')  //跳過註解或換行符號
+			line = br.readLine();
 	
-		pointCount = Integer.parseInt(TwoP); //點數
+		pointCount = Integer.parseInt(line); //點數
 
 		panelDraw.clean(); //clean canvas
 		
@@ -484,11 +626,11 @@ public class Voronoi extends JFrame implements ActionListener, ItemListener {
 		for(int i = 0; i < pointCount; i++) {
 			
 			run = false;
-			TwoP = br.readLine();
-			while(TwoP.length() == 0 || TwoP.charAt(0) == '#') 
-				TwoP = br.readLine();
+			line = br.readLine();
+			while(line.length() == 0 || line.charAt(0) == '#') 
+				line = br.readLine();
 			
-			strs = TwoP.split(" "); //以逗號區隔，形成數個陣列資料
+			strs = line.split(" "); //以逗號區隔，形成數個陣列資料
 			Point p = new Point();
 			p.x = Integer.parseInt(strs[0]);
 			p.y = Integer.parseInt(strs[1]);
@@ -520,9 +662,9 @@ public class Voronoi extends JFrame implements ActionListener, ItemListener {
 		Arrays.sort(point, arr); //lexical order
 
         points = "";
-        for (int i = point.length - pointCount; i < point.length; i++) {
+        for (int i = point.length - pointCount; i < point.length; i++) 
         	points = points + "P " + point[i][0] + " " + point[i][1] + "\n";
-        }
+        
         dataMsg.setText(points);
         panelDraw.addPoint(p);
 	}
@@ -532,7 +674,7 @@ public class Voronoi extends JFrame implements ActionListener, ItemListener {
 		
 		if(l.p_a.x == l.p_b.x && l.p_a.y == l.p_b.y)
 			return;
-		
+	
 		panelDraw.addLine(l);
 		
 		lines = "";
@@ -546,7 +688,7 @@ public class Voronoi extends JFrame implements ActionListener, ItemListener {
 		run = true;
 	}
 	
-	//新增線
+	//新增線(2)
 	public void updateLineMsg(double a_x, double a_y, double b_x, double b_y) {
 		
 		if(a_x == b_x && a_y == b_y)
@@ -576,6 +718,7 @@ public class Voronoi extends JFrame implements ActionListener, ItemListener {
 	public void clean(){
 		points = "";
 		run = false;
+		step = 0;
 		dataMsg.setText(points);
 		
 		for(int i = point.length - pointCount; i < point.length; i++){
@@ -593,7 +736,7 @@ public class Voronoi extends JFrame implements ActionListener, ItemListener {
 	}
 	
 	//畫線
-	public void draw() {
+	public void draw(ArrayList<Point> list) {
 		String msg = "";
 		Line c;
 		
@@ -602,7 +745,7 @@ public class Voronoi extends JFrame implements ActionListener, ItemListener {
 		else
 			JLbl_msg.setText("可以輸出檔案，或按Enter繼續");
 
-		switch(panelDraw.pointCount) {
+		switch(list.size()) {
 			case 1:
 				msg = "一個點無法構成Voronoi diagram";
 				if(panelDraw.pointCount < pointCount)
@@ -614,10 +757,12 @@ public class Voronoi extends JFrame implements ActionListener, ItemListener {
 			case 2:
 				PDouble pa = new PDouble();
 				PDouble pb = new PDouble();
-				pa.x = (double)panelDraw.point_list.get(0).x;
-				pa.y = (double)panelDraw.point_list.get(0).y;
-				pb.x = (double)panelDraw.point_list.get(1).x;
-				pb.y = (double)panelDraw.point_list.get(1).y;
+
+				pa.x = (double)list.get(0).x;
+				pa.y = (double)list.get(0).y;
+				pb.x = (double)list.get(1).x;
+				pb.y = (double)list.get(1).y;
+				System.out.println(pa.x+" "+pa.y+","+pb.x+" "+pb.y);
 				
 				TwoP L = new TwoP(pa, pb);
 				
@@ -652,11 +797,15 @@ public class Voronoi extends JFrame implements ActionListener, ItemListener {
 			case 3:
 			
 				PDouble p[] = new PDouble[3];
-
+				
+				System.out.println(list.get(0).x+"");
+				
 				for(int i = 0; i <= 2; i++) {
+					
 					p[i] = new PDouble();
-					p[i].x = (double)(panelDraw.point_list.get(i).x);
-					p[i].y = (double)(panelDraw.point_list.get(i).y);
+					p[i].x = (double)(list.get(i).x);
+					p[i].y = (double)(list.get(i).y);
+					System.out.println(p[i].x + " "+p[i].y);
 				}
 				
 				Line sortingLine[] = getLineList(p); //三邊從小到大
@@ -717,10 +866,10 @@ public class Voronoi extends JFrame implements ActionListener, ItemListener {
 	//畫三角形邊
 	private Line getTriLine(PDouble circumcentre, Line mline, PDouble verticalPoint, int type){
 		
-		
     	PDouble start = new PDouble();
         PDouble destination = new PDouble();
         PDouble newDest = new PDouble();
+        
         Line tempLine;
         int maxX = MAX;
         int minX = MIN;
@@ -750,8 +899,9 @@ public class Voronoi extends JFrame implements ActionListener, ItemListener {
         	if(start.x  == destination.x){ //中垂線垂直
         		
             	PDouble p_a, p_b;
-            	if(start.y > destination.y){
+            	if(start.y > destination.y){ //往上
             		p_a = new PDouble(start.x, (double)0);
+            		
             		if(type == 1) {
             			tempLine = new Line(destination, p_a);
             			tempLine = tempLine.toBoundX();
@@ -760,9 +910,10 @@ public class Voronoi extends JFrame implements ActionListener, ItemListener {
             			tempLine = new Line(start, p_a);
             		
             	}
-            	else{
-            		
+            	
+            	else{ //往下
             		p_b = new PDouble(start.x, MAX);
+            		
             		if(type == 1)
             			tempLine = new Line(destination, p_b);
             		else
@@ -770,23 +921,26 @@ public class Voronoi extends JFrame implements ActionListener, ItemListener {
             	}
             }
         	
-            else{
+            else{ //中垂線不垂直
             	
-            	if(start.x > destination.x){
-            		double m = (double) (start.y - destination.y) / (start.x - destination.x);
+            	double m = (double) (start.y - destination.y) / (start.x - destination.x);
+            	
+            	if(start.x > destination.x){ //向左
             		minY = (int) (m * (minX - start.x) + start.y);
             		newDest.x = minX;
             		newDest.y = minY;
             	}
-            	else{	
-            		double m = (double) (start.y - destination.y) / (start.x - destination.x);
+            	
+            	else { //向右
             		maxY =  (int) (m * (maxX - start.x) + start.y);
             		newDest.x = maxX;
             		newDest.y = maxY;
             	}
+            	
             	if(type == 1) {
             		tempLine = new Line(destination, newDest); 
             	}
+            	
             	else 
             		tempLine = new Line(start, newDest); 
             	
@@ -800,6 +954,8 @@ public class Voronoi extends JFrame implements ActionListener, ItemListener {
         else{ //直角三角形
         	
         	tempLine = mline.toBoundX();
+        	
+        	//中垂線向右
         	if( (start.x > verticalPoint.x && start.y < verticalPoint.y) || (start.x > verticalPoint.x && start.y > verticalPoint.y)){
                 if((tempLine.p_a).x > (tempLine.p_b).x) 
                 	tempLine.p_b= start;
@@ -807,7 +963,7 @@ public class Voronoi extends JFrame implements ActionListener, ItemListener {
                 	tempLine.p_a = start;
             } 
         	
-        	else{
+        	else{ //中垂線向左
                 if((tempLine.p_a).x > (tempLine.p_b).x)
                 	tempLine.p_a = start;
                 else 
@@ -817,7 +973,7 @@ public class Voronoi extends JFrame implements ActionListener, ItemListener {
         }
     }
 	
-	 //三角形的邊從小到大
+	//三角形的邊從小到大
 	private Line[] getLineList(PDouble[] p){
         Line line[] = new Line[3];
         

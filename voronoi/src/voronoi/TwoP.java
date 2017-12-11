@@ -3,8 +3,8 @@ package voronoi;
 import java.awt.Point;
 
 public class TwoP {
-	public static PDouble p1;
-	public static PDouble p2;
+	public PDouble p1;
+	public PDouble p2;
 
 	public TwoP(PDouble p1, PDouble p2) {
 		this.p1 = p1;

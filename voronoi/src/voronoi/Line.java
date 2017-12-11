@@ -10,10 +10,10 @@ public class Line {
 			p_a.y = pa.y;
 			p_b.x = pb.x;
 			p_b.y = pb.y;
-			Length = Math.sqrt((Math.pow((p_a.x - p_b.x), 2) + Math.pow((p_a.y - p_b.y), 2)));
+			Length = Math.sqrt((Math.pow((p_a.x - p_b.x), 2) + Math.pow((p_a.y - p_b.y), 2))); //線段長 
 	}
 
-	//線延伸到X軸邊界
+	//內部線延伸到X軸邊界
 	public Line toBoundX() {
 	
 		int maxX = 900;
@@ -48,7 +48,7 @@ public class Line {
 		
 	}
 	
-	//線延伸到Y軸邊界
+	//內部線延伸到Y軸邊界
 	public Line toBoundY(Line line){
 
 		int minY = 0;
@@ -83,11 +83,17 @@ public class Line {
         return line;
 	}
 	
-	public void change() {
+	//超過邊界值的拉回來
+	public void change() { 
 		double m = ((p_a).y - (p_b).y) / ((p_a).x - (p_b).x);
 		if(p_a.x < 0) {
 			p_a.y = p_b.y - p_b.x * m;
 			p_a.x = 0;
+		}
+		
+		if(p_a.x > 900) {
+			p_a.y = p_b.y + (900-p_b.x) * m;
+			p_a.x = 900;
 		}
 		
 		if(p_b.x < 0) {
@@ -95,10 +101,33 @@ public class Line {
 			p_b.x = 0;
 		}
 		
-		if(p_a.x > 900) {
-			p_a.y = p_b.y + (900-p_b.x) * m;
-			p_a.x = 900;
+		if(p_b.x > 900) {
+			p_b.y = p_a.y + (900-p_a.x) * m;
+			p_b.x = 900;
 		}
+		
+		
+		if(p_a.y < 0) {
+			p_a.x = p_b.x - p_b.y / m;
+			p_a.y = 0;
+		}
+		
+		if(p_a.y > 900) {
+			p_a.x = (900 - p_b.y)/m + p_b.x;
+			p_a.y = 900;
+		}
+		
+		if(p_b.y < 0) {
+			p_b.x = p_a.x - p_a.y / m;
+			p_b.y = 0;
+		}
+		
+		if(p_b.y > 900) {
+			p_b.x = (900 - p_a.y)/m + p_a.x;
+			p_b.y = 900;
+		}
+		
+		
 
 	}
 	

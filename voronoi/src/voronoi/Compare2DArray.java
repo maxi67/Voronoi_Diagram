@@ -10,6 +10,6 @@ public class Compare2DArray implements Comparator {
 		      if (aa[i] != bb[i])
 		        return aa[i] - bb[i];
 		    return aa.length - bb.length;
-		  }
-		}
+	  }
+}
 
