@@ -29,4 +29,12 @@ public class PDouble {
 		p.y = (double)P.y;
 		return p;
 	}
+	
+	public boolean isEqual(PDouble p2) {
+		if (p2.x == x)
+			if (p2.y == y)
+				return true;
+			
+		return false;
+	}
 }
