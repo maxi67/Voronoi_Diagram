@@ -1,9 +1,7 @@
 package voronoi;
 
 import java.awt.Point;
-
 import java.util.Arrays;
-import java.util.Comparator;
 
 public class ConvexHull {
 
@@ -16,8 +14,7 @@ public class ConvexHull {
 		if (P.length > 1) {
 			int n = P.length, k = 0;
 			Point[] H = new Point[2 * n];
-			PointCmpX arr = new PointCmpX();
-			Arrays.sort(P, arr);
+			Arrays.sort(P, new PointCmpX());
 
 			// Build lower hull
 			for (int i = 0; i < n; ++i) {
@@ -37,28 +34,14 @@ public class ConvexHull {
 				H = Arrays.copyOfRange(H, 0, k - 1);
 			
 			return H;
-		} else if (P.length <= 1) {
+		} 
+		
+		else if (P.length <= 1) {
 			return P;
-		} else {
+		} 
+		
+		else {
 			return null;
 		}
 	}
-}
-
-class PointCmpX implements Comparator<Point> {
-    public int compare(Point a, Point b) {
-    	if (a.x == b.x)
-    		return a.y - b.y;
-    	else
-    		return a.x - b.x;
-    }
-}
-
-class PointCmpY implements Comparator<Point> {
-    public int compare(Point a, Point b) {
-    	if (a.y == b.y)
-    		return a.x - b.x;
-    	else
-    		return a.y - b.y;
-    }
 }

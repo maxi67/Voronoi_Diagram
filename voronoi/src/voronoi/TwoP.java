@@ -34,9 +34,8 @@ public class TwoP {
 		return p2.x - p1.x;
 	}
 	
-	public static Line getVerticalLine(TwoP L) {
-		
-		Line l = new Line(); //垂直平分線
+	public static Line getVerticalLine(TwoP L) { //中垂線
+		Line l = new Line(); 
 		PDouble vir1 = new PDouble();
 		PDouble	vir2 = new PDouble();
 		
