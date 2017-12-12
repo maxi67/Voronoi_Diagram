@@ -131,6 +131,13 @@ public class Line {
 
 	}
 	
+	public Line yOrder(){ //y小放前面
+		Line l = new Line();
+		l.p_a = (p_a.y > p_b.y) ? p_b : p_a;
+		l.p_b = (p_a.y > p_b.y) ? p_a : p_b;
+		return l;
+	}
+	
 	//中垂線
 	public Line mLine() { 
 		double temp;
@@ -140,11 +147,9 @@ public class Line {
         c.x =  (p_a.x + p_b.x) / 2 ;
         c.y =  (p_a.y + p_b.y) / 2 ;
         
-        //先取方向向量
         v.x = p_b.x - p_a.x;
         v.y = p_b.y - p_a.y;
         
-        //法向量
         temp = v.x;
         v.x = v.y;
         v.y = temp;

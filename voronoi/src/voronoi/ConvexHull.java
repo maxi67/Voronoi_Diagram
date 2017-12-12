@@ -16,7 +16,7 @@ public class ConvexHull {
 		if (P.length > 1) {
 			int n = P.length, k = 0;
 			Point[] H = new Point[2 * n];
-			PointCmp arr = new PointCmp();
+			PointCmpX arr = new PointCmpX();
 			Arrays.sort(P, arr);
 
 			// Build lower hull
@@ -45,11 +45,20 @@ public class ConvexHull {
 	}
 }
 
-class PointCmp implements Comparator<Point> {
+class PointCmpX implements Comparator<Point> {
     public int compare(Point a, Point b) {
     	if (a.x == b.x)
     		return a.y - b.y;
     	else
     		return a.x - b.x;
+    }
+}
+
+class PointCmpY implements Comparator<Point> {
+    public int compare(Point a, Point b) {
+    	if (a.y == b.y)
+    		return a.x - b.x;
+    	else
+    		return a.y - b.y;
     }
 }

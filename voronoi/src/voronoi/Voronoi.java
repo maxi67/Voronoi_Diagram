@@ -226,6 +226,7 @@ public class Voronoi extends JFrame implements ActionListener, ItemListener {
         button_run.addMouseListener(new MouseAdapter() {
 	          @Override
 	          public void mouseClicked(MouseEvent e) {
+	        	  isStep = false;
 	        	  runDraw();
 	          }
 	        });
@@ -331,8 +332,7 @@ public class Voronoi extends JFrame implements ActionListener, ItemListener {
         contentPane.add(L_exit);
         
         panelMsg.setBounds(0, 0, 1200, 100);
-        contentPane.add(panelMsg);
-        
+        contentPane.add(panelMsg);   
 	}
 	
 	//建立功能選單
@@ -494,23 +494,25 @@ public class Voronoi extends JFrame implements ActionListener, ItemListener {
 		if (count <= 3)		
 			draw(list);
 		
-		else { //devide 2 parts
+		else { //divide 2 parts
 			
-			for (int i = 0; i < count/2; i++) {
-			//	System.out.println("p " + i);
+			for (int i = 0; i < count/2; i++)
 				p.add(list.get(i));
-			}
 			
 			for (int i = (count/2); i < count; i++)
 				p2.add(list.get(i));
-
+			
+			p.sort(new PointCmpY());
+			p2.sort(new PointCmpY());
+			
 			Point[] c_p = new Point[list.size()];
 			for (int i = 0; i < list.size(); i++)
 				c_p[i] = list.get(i);
 			
 			if (!isStep) { //run
 				if(run) //防止二次執行
-					return;  
+					return;
+				
 				dir = 1; //left
 				draw(p);
 				
@@ -518,12 +520,14 @@ public class Voronoi extends JFrame implements ActionListener, ItemListener {
 				draw(p2);
 				
 				panelDraw.drawConvex(ConvexHull.convex_hull(c_p), 3);
+				panelDraw.drawHyperPlane(p, p2);
 			}
 			
 			else { //Step by Step
-				System.out.println("step " + step);
-				step = (step == 5) ? -1 : step;
+
+				step = (step == 7) ? -1 : step;
 				step++;
+				run = false;
 				
 				switch (step) {
 					case 0:
@@ -556,6 +560,17 @@ public class Voronoi extends JFrame implements ActionListener, ItemListener {
 						panelDraw.drawConvex(ConvexHull.convex_hull(c_p), 3);
 						JLbl_msg.setText("Merge Convex Hull");
 						break;
+						
+					case 6:
+						panelDraw.drawHyperPlane(p, p2);
+						JLbl_msg.setText("HyperPlane");
+						break;
+						
+					case 7:
+						panelDraw.hull = 0;
+						panelDraw.repaint();
+						JLbl_msg.setText("Erase convex hull");
+						break;	
 						
 					default:
 						break;
@@ -608,22 +623,24 @@ public class Voronoi extends JFrame implements ActionListener, ItemListener {
 				}
 				
 				else {
-					Line l = new Line(); //垂直平分線
-					PDouble vir1 = new PDouble(), vir2 = new PDouble();
 					
-					vir1.x = -(L.p2.y - L.p1.y); 
-					vir1.y = L.p2.x - L.p1.x;
-
-					vir2.x =  (L.p2.y - L.p1.y);
-					vir2.y =  -(L.p2.x - L.p1.x);
-
-					l.p_a.x = L.midpointX() + vir1.x;
-					l.p_a.y = L.midpointY() + vir1.y;
-					
-					l.p_b.x = L.midpointX() + vir2.x;
-					l.p_b.y = L.midpointY() + vir2.y;
-
-					c = l.toBoundX();
+					c = TwoP.getVerticalLine(L);
+//					Line l = new Line(); //垂直平分線
+//					PDouble vir1 = new PDouble(), vir2 = new PDouble();
+//					
+//					vir1.x = -(L.p2.y - L.p1.y); 
+//					vir1.y = L.p2.x - L.p1.x;
+//
+//					vir2.x =  (L.p2.y - L.p1.y);
+//					vir2.y =  -(L.p2.x - L.p1.x);
+//
+//					l.p_a.x = L.midpointX() + vir1.x;
+//					l.p_a.y = L.midpointY() + vir1.y;
+//					
+//					l.p_b.x = L.midpointX() + vir2.x;
+//					l.p_b.y = L.midpointY() + vir2.y;
+//
+//					c = l.toBoundX();
 				}
 				
 				updateLineMsg(c);
@@ -693,7 +710,6 @@ public class Voronoi extends JFrame implements ActionListener, ItemListener {
 		
 		updateMsg();
 		button_output.setEnabled(true);
-		
 	}
 	
 	//讀檔
@@ -830,6 +846,7 @@ public class Voronoi extends JFrame implements ActionListener, ItemListener {
 		points = "";
 		run = false;
 		step = -1;
+		isStep = false;
 		dataMsg.setText(points);
 		
 		for (int i = point.length - pointCount; i < point.length; i++){
