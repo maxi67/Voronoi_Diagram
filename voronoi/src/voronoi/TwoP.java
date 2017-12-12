@@ -34,6 +34,27 @@ public class TwoP {
 		return p2.x - p1.x;
 	}
 	
+	public static Line getVerticalLine(TwoP L) {
+		
+		Line l = new Line(); //垂直平分線
+		PDouble vir1 = new PDouble();
+		PDouble	vir2 = new PDouble();
+		
+		vir1.x = -(L.p2.y - L.p1.y); 
+		vir1.y = L.p2.x - L.p1.x;
+		vir2.x =  (L.p2.y - L.p1.y);
+		vir2.y =  -(L.p2.x - L.p1.x);
+
+		l.p_a.x = L.midpointX() + vir1.x;
+		l.p_a.y = L.midpointY() + vir1.y;
+		
+		l.p_b.x = L.midpointX() + vir2.x;
+		l.p_b.y = L.midpointY() + vir2.y;
+
+		l = l.toBoundX();
+		return l;
+	}
+	
 	public double slope() { //斜率
 		double s = (double)(p2.y - p1.y)/(p2.x - p1.x);
 		return s;
