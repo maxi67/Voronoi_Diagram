@@ -6,7 +6,7 @@
 - 輸入方式: 在畫布上以滑鼠任意點擊或讀檔的方式
 - 開發語言: Java 
 - 開發平台: EClipse
-- 應用: `Java swing(GUI)`, `File I/O`
+- 應用: `Swing(GUI)`, `File I/O`
 - [執行檔下載](https://maxi67.github.io/projects/Voronoi_Report/download/Voronoi_exe.rar) (.jar與img資料夾請解壓縮到相同目錄下)
 
 ## 報告網站
