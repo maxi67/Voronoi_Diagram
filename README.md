@@ -14,5 +14,5 @@
 - 連結: https://maxi67.github.io/projects/Voronoi_Report/
 
 ## 專案截圖
-<img src="https://maxi67.github.io/projects/Voronoi_Report/img/step8.png" height="400px">
+<img src="https://maxi67.github.io/projects/Voronoi_Report/img/step8.png" height="300px">
 此範例有4個點，形成5條邊。左側分別記錄點與邊的座標(x,y)，P代表點，E代表線段及其兩端點座標。
